@@ -1,11 +1,14 @@
 {% extends "layout.html" %}
 {% block body %}
   {% if session.logged_in %}
-    {% for charmDef in charmDefs %}
-        <!-- embed each definition -->
+    
+    <script type="application/json" id="charmDefs">
+    {% if charmDefs %}
+        {{ charmDefs | tojson }}
     {% else %}
-        <!--no charm defs defined-->
-    {% endfor %}
+        {}
+    {% endif %}
+    </script>
 
     <div class="group">
         <div class="canvasWrapper">
@@ -21,8 +24,11 @@
     <script type="text/javascript" src="{{ url_for('static', filename='box2d_v2.3.1_min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='MTO.js') }}"></script>
     <script type="text/javascript">
-        MTO.main();
+        var defs = JSON.parse(document.getElementById('charmDefs').innerHTML);
         var drawerTestElem = document.getElementById('drawerTest');
+        var overlayElem = document.getElementById('overlayContainer');
+
+        MTO.main();
         MTO.buildDrawer(drawerTestElem);
     </script>
 

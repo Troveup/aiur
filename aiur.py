@@ -51,16 +51,28 @@ def initdb_command():
 
 @app.route('/')
 def show_charm_defs():
+    charmDefs = fetch_cloud_references()
+    return render_template('show_charm_defs.html', entries=charmDefs)
+
+def fetch_cloud_references():
     db = get_db()
     cur = db.execute('select bucket, refType, key, version, hash, content from cloud_reference order by id desc')
-    charmDefs = cur.fetchall()
-    return render_template('show_charm_defs.html', entries=charmDefs)
+    rows = cur.fetchall()
+    charmDefs = []
+    for defData in rows:
+        charmDef = {}
+        charmDef['bucket'] = defData['bucket']
+        charmDef['refType'] = defData['refType']
+        charmDef['key'] = defData['key']
+        charmDef['version'] = defData['version']
+        charmDef['hash'] = defData['hash']
+        charmDef['content'] = defData['content']
+        charmDefs.append(charmDef)
+    return charmDefs
 
 @app.route('/builditem')
 def build_item():
-    db = get_db()
-    cur = db.execute('select bucket, refType, key, version, hash, content from cloud_reference order by id desc')
-    charmDefs = cur.fetchall()
+    charmDefs = fetch_cloud_references()
     return render_template('build_item.html', charmDefs=charmDefs)
 
 @app.route('/charmdef', methods=['POST'])
