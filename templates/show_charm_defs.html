@@ -15,8 +15,6 @@
         <dd><input type=text name="width">
         <dt>Height in mm:
         <dd><input type=text name="height">
-        <!--dt anchors -->
-        <!--<dd><input type=hidden name=anchors>-->
         <dt>serializedAnchors:
         <dd><textarea name="anchors" rows=5 cols=40></textarea>
         <dd><input type=submit value=Share>
@@ -25,9 +23,12 @@
   {% endif %}
   <ul class=entries>
   {% for charmDef in entries %}
-    <li><h2>{{ charmDef.key }}</h2>{{ charmDef.refType }}
+           
+    <li><h2>{{ charmDef.key }}</h2>located at https://storage.googleapis.com/{{ charmDef.refType }}/gateway/{{ charmDef.refType }}/{{ charmDef.key }}/{{ charmDef.hash }}.json
+    <pre> {{ charmDef.content }} </pre>
+    </li>
   {% else %}
-    <li><em>Unbelievable.  No entries here so far</em>
+    <li><em>Unbelievable.  No entries here so far</em></li>
   {% endfor %}
   </ul>
 {% endblock %}

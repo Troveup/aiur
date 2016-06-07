@@ -9,7 +9,8 @@ create table cloud_reference (
     refType text not null,
     key text not null,
     version integer not null,
-    hash text not null
+    hash text not null,
+    content text not null -- the serialized json, temporary until uploading to the bucket is worked out (or performed through existing troveweb app in prod)
 );
 
 create table item_instance (

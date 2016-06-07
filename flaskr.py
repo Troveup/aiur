@@ -52,8 +52,9 @@ def initdb_command():
 @app.route('/')
 def show_charm_defs():
     db = get_db()
-    cur = db.execute('select bucket, refType, key, version, hash from cloud_reference order by id desc')
+    cur = db.execute('select bucket, refType, key, version, hash, content from cloud_reference order by id desc')
     charmDefs = cur.fetchall()
+
     return render_template('show_charm_defs.html', entries=charmDefs)
 
 @app.route('/charmdef', methods=['POST'])
@@ -72,16 +73,22 @@ def add_charm_definition():
     anchorString = request.form['anchors']
 
     charmDef = {}
+    charmDef['key'] = key
+    charmDef['type'] = refType
     charmDef['width'] = width
     charmDef['height'] = height
+    # charmDef['version'] = version should version be part of file? reduces value of storing hash
     charmDef['anchors'] = json.loads(anchorString)
 
     # TODO: upload file to bucket
     definitionJSON = json.dumps(charmDef)
+
+    print("to be uploaded ======")
+    print(definitionJSON)
     def_hash = hashlib.sha224(definitionJSON.encode('utf-8')).hexdigest()
 
-    db.execute('insert into cloud_reference (bucket, refType, key, version, hash) values (?, ?, ?, ?, ?)',
-                 [bucket, refType, key, version, def_hash])
+    db.execute('insert into cloud_reference (bucket, refType, key, version, hash, content) values (?, ?, ?, ?, ?, ?)',
+                 [bucket, refType, key, version, def_hash, definitionJSON])
     db.commit()
     return redirect(url_for('show_charm_defs'))
 
