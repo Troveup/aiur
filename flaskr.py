@@ -54,7 +54,6 @@ def show_charm_defs():
     db = get_db()
     cur = db.execute('select bucket, refType, key, version, hash, content from cloud_reference order by id desc')
     charmDefs = cur.fetchall()
-
     return render_template('show_charm_defs.html', entries=charmDefs)
 
 @app.route('/charmdef', methods=['POST'])
@@ -67,6 +66,7 @@ def add_charm_definition():
     refType = request.form['refType']
     key = request.form['key']
     version = request.form['version']
+    imgURL = request.form['imgURL']
 
     width = request.form['width']
     height = request.form['height']
@@ -77,6 +77,7 @@ def add_charm_definition():
     charmDef['type'] = refType
     charmDef['width'] = width
     charmDef['height'] = height
+    charmDef['imgURL'] = imgURL
     # charmDef['version'] = version should version be part of file? reduces value of storing hash
     charmDef['anchors'] = json.loads(anchorString)
 
