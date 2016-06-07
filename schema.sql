@@ -32,3 +32,23 @@ create table charm_instance (
     FOREIGN KEY(cloud_id) REFERENCES cloud_reference(id)
 );
 
+insert into cloud_reference (bucket, refType, key, version, hash, content) values ('troveup-dev-private', 'charm', 'dev-debug-link', 1, 'lolhandeditA4AAE1995876B6551534D', '{
+    "type": "charm",
+    "key": "dev-debug-link",
+    "version": 1,
+    "imgURL": "https://storage.googleapis.com/troveup-dev-private/mto-images/directed-charm-link.png",
+    "width": 1.866666666666667,
+    "height": 5.833333333333333,
+    "anchors": [0, 2.3, 0, -2.3]
+}');
+
+insert into cloud_reference (bucket, refType, key, version, hash, content) values ('troveup-dev-private', 'charm', 'dev-simple-link', 2, '5854463C046A4AAE1995876B6551534D', '{
+    "type": "charm",
+    "key": "dev-simple-link",
+    "version": 2,
+    "imgURL": "https://storage.googleapis.com/troveup-dev-private/mto-images/charm-link.png",
+    "width": 1.866666666666667,
+    "height": 5.833333333333333,
+    "anchors": [0, 2.3, 0, -2.3]
+}');
+
