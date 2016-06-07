@@ -1,0 +1,4 @@
+
+VENV
+*.sw*
+__pycache__
