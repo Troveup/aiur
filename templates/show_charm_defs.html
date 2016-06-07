@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% if session.logged_in %}
+    <form action="{{ url_for('add_charm_definition') }}" method=post class=add-entry>
+      <dl>
+        <dt>Bucket:
+        <dd><input type=text name="bucket">
+        <dt>Type Referenced:
+        <dd><input type=text name="refType">
+        <dt>Key:
+        <dd><input type=text name="key">
+        <dt>Version:
+        <dd><input type=text name="version">
+        <dt>Width in mm:
+        <dd><input type=text name="width">
+        <dt>Height in mm:
+        <dd><input type=text name="height">
+        <!--dt anchors -->
+        <!--<dd><input type=hidden name=anchors>-->
+        <dt>serializedAnchors:
+        <dd><textarea name="anchors" rows=5 cols=40></textarea>
+        <dd><input type=submit value=Share>
+      </dl>
+    </form>
+  {% endif %}
+  <ul class=entries>
+  {% for charmDef in entries %}
+    <li><h2>{{ charmDef.key }}</h2>{{ charmDef.refType }}
+  {% else %}
+    <li><em>Unbelievable.  No entries here so far</em>
+  {% endfor %}
+  </ul>
+{% endblock %}

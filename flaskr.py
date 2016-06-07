@@ -1,6 +1,7 @@
 # all the imports
 import os
 import sqlite3
+import json, hashlib
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 
 # create our little application :)
@@ -49,22 +50,40 @@ def initdb_command():
     print("Initialized the database")
 
 @app.route('/')
-def show_entries():
+def show_charm_defs():
     db = get_db()
-    cur = db.execute('select title, text from entries order by id desc')
-    entries = cur.fetchall()
-    return render_template('show_entries.html', entries=entries)
+    cur = db.execute('select bucket, refType, key, version, hash from cloud_reference order by id desc')
+    charmDefs = cur.fetchall()
+    return render_template('show_charm_defs.html', entries=charmDefs)
 
-@app.route('/add', methods=['POST'])
-def add_entry():
+@app.route('/charmdef', methods=['POST'])
+def add_charm_definition():
     if not session.get('logged_in'):
         abort(401)
     db = get_db()
-    db.execute('insert into entries (title, text) values (?, ?)',
-                 [request.form['title'], request.form['text']])
+
+    bucket = request.form['bucket']
+    refType = request.form['refType']
+    key = request.form['key']
+    version = request.form['version']
+
+    width = request.form['width']
+    height = request.form['height']
+    anchorString = request.form['anchors']
+
+    charmDef = {}
+    charmDef['width'] = width
+    charmDef['height'] = height
+    charmDef['anchors'] = json.loads(anchorString)
+
+    # TODO: upload file to bucket
+    definitionJSON = json.dumps(charmDef)
+    def_hash = hashlib.sha224(definitionJSON.encode('utf-8')).hexdigest()
+
+    db.execute('insert into cloud_reference (bucket, refType, key, version, hash) values (?, ?, ?, ?, ?)',
+                 [bucket, refType, key, version, def_hash])
     db.commit()
-    flash('New entry was successfully posted')
-    return redirect(url_for('show_entries'))
+    return redirect(url_for('show_charm_defs'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -77,11 +96,11 @@ def login():
         else:
             session['logged_in'] = True
             flash('You were logged in')
-            return redirect(url_for('show_entries'))
+            return redirect(url_for('show_charm_defs'))
     return render_template('login.html', error=error)
 
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
     flash('You were logged out')
-    return redirect(url_for('show_entries'))
+    return redirect(url_for('show_charm_defs'))

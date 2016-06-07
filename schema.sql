@@ -30,3 +30,4 @@ create table charm_instance (
     FOREIGN KEY(item_id) REFERENCES item_instance(id),
     FOREIGN KEY(cloud_id) REFERENCES cloud_reference(id)
 );
+
