@@ -14,6 +14,16 @@ FLASK_DEBUG=1
 flask initdb
 ```
 
+Right now the MTO js library is poorly integrated, need to manually run webpack and move generated
+bundle to static directory for python server. Look into
+[webpack plugin for flask][https://github.com/nickjj/flask-webpack] to simplify this process if
+possible.
+
+```bash
+bower install
+pushd bower_components/mto && webpack && cp build/MTO.js ../../static/ && popd
+```
+
 ## Run Server
 
 ```bash

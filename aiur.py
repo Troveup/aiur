@@ -56,6 +56,13 @@ def show_charm_defs():
     charmDefs = cur.fetchall()
     return render_template('show_charm_defs.html', entries=charmDefs)
 
+@app.route('/builditem')
+def build_item():
+    db = get_db()
+    cur = db.execute('select bucket, refType, key, version, hash, content from cloud_reference order by id desc')
+    charmDefs = cur.fetchall()
+    return render_template('build_item.html', charmDefs=charmDefs)
+
 @app.route('/charmdef', methods=['POST'])
 def add_charm_definition():
     if not session.get('logged_in'):

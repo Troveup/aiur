@@ -1,0 +1,21 @@
+{
+  "name": "aiur",
+  "authors": [
+    "Ian McLaughlin <ian.p.mclaughlin@gmail.com>"
+  ],
+  "description": "a server for generating test data and interacting with the mto-customizer frontend library",
+  "main": "",
+  "license": "none",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "mto": "git@github.com:Troveup/mto-customizer.git"
+  }
+}

@@ -4,3 +4,4 @@ VENV
 __pycache__
 
 aiur.db
+bower_components

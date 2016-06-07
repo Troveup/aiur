@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% if session.logged_in %}
+    {% for charmDef in charmDefs %}
+        <!-- embed each definition -->
+    {% else %}
+        <!--no charm defs defined-->
+    {% endfor %}
+
+    <div class="group">
+        <div class="canvasWrapper">
+            <canvas width="600" height="600" id="canvas"></canvas>
+            <div id="overlayContainer"></div>
+        </div>
+        <div class="drawerWrapper">
+            <div id="drawerTest"></div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='box2d_v2.3.1_min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='MTO.js') }}"></script>
+    <script type="text/javascript">
+        MTO.main();
+        var drawerTestElem = document.getElementById('drawerTest');
+        MTO.buildDrawer(drawerTestElem);
+    </script>
+
+  {% endif %}
+{% endblock %}
