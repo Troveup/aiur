@@ -3,4 +3,4 @@ VENV
 *.sw*
 __pycache__
 
-flaskr.db
+aiur.db

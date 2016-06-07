@@ -9,7 +9,7 @@ Based off [flaskr tutorial][http://flask.pocoo.org/docs/0.11/tutorial/introducti
 virtualenv -p python3 VENV
 source VENV/bin/activate
 pip install Flask
-FLASK_APP=flaskr.py
+FLASK_APP=aiur.py
 FLASK_DEBUG=1
 flask initdb
 ```
@@ -17,7 +17,7 @@ flask initdb
 ## Run Server
 
 ```bash
-FLASK_APP=flaskr.py flask run --host 0.0.0.0
+FLASK_APP=aiur.py flask run --host 0.0.0.0
 
 # if FLASK_APP is already set you can omit the declaration
 flask run --host 0.0.0.0

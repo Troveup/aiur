@@ -1,17 +1,17 @@
 
 import os
-import flaskr
+import aiur
 import unittest
 import tempfile
 
-class FlaskrTestCase(unittest.TestCase):
+class AiurTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.db_fd, flaskr.app.config['DATABASE'] = tempfile.mkstemp()
-        flaskr.app.config['TESTING'] = True
-        self.app = flaskr.app.test_client()
-        with flaskr.app.app_context():
-            flaskr.init_db()
+        self.db_fd, aiur.app.config['DATABASE'] = tempfile.mkstemp()
+        aiur.app.config['TESTING'] = True
+        self.app = aiur.app.test_client()
+        with aiur.app.app_context():
+            aiur.init_db()
 
     def login(self, username, password):
         return self.app.post('/login', data=dict(
@@ -24,7 +24,7 @@ class FlaskrTestCase(unittest.TestCase):
 
     def tearDown(self):
         os.close(self.db_fd)
-        os.unlink(flaskr.app.config['DATABASE'])
+        os.unlink(aiur.app.config['DATABASE'])
 
     def test_empty_db(self):
         rv = self.app.get('/')
