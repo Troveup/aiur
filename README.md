@@ -9,8 +9,8 @@ Based off [flaskr tutorial][http://flask.pocoo.org/docs/0.11/tutorial/introducti
 virtualenv -p python3 VENV
 source VENV/bin/activate
 pip install Flask
-FLASK_APP=aiur.py
-FLASK_DEBUG=1
+export FLASK_APP=aiur.py
+export FLASK_DEBUG=1
 flask initdb
 ```
 
