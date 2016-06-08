@@ -16,7 +16,7 @@
             <div id="overlayContainer"></div>
         </div>
         <div class="drawerWrapper">
-            <div id="drawerTest"></div>
+            <div id="drawerContainer"></div>
         </div>
     </div>
 
@@ -24,12 +24,24 @@
     <script type="text/javascript" src="{{ url_for('static', filename='box2d_v2.3.1_min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='MTO.js') }}"></script>
     <script type="text/javascript">
-        var defs = JSON.parse(document.getElementById('charmDefs').innerHTML);
-        var drawerTestElem = document.getElementById('drawerTest');
-        var overlayElem = document.getElementById('overlayContainer');
 
-        MTO.main();
-        MTO.buildDrawer(drawerTestElem);
+        var rawDefs = document.getElementById('charmDefs').innerHTML;
+        var cloudReferences;
+        try {
+            cloudReferences = JSON.parse(rawDefs);
+        } catch (e) {
+            console.warn(e);
+        }
+
+        console.log("cloudReferences");
+        console.log(cloudReferences);
+
+        MTO.main({
+            referenceList: cloudReferences,
+            canvas: document.getElementById('canvas'),
+            overlayContainer: document.getElementById('overlayContainer'),
+            drawerContainer: document.getElementById('drawerContainer')
+        });
     </script>
 
   {% endif %}

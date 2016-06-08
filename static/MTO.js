@@ -74,40 +74,49 @@ var MTO =
 	    item.render();
 	}
 
-	// need to figure out a good way to populate this, likely from the DB
-	var cloudReferences = [
-	    {
-	        bucket: 'troveup-dev-private',
-	        type: 'charm',
-	        key: 'dev-simple-link',
-	        version: 1,
-	        hash: "06610768D189CCCC4C1874B8576DA4A9"
-	    }
-	];
-
-	var testCanvas;
-	var overlayContainer = document.getElementById('overlayContainer');
 	var gate = new Gateway(); // TODO: figure out cors issue to resume testing
-	var overlay = new Overlay(overlayContainer);
+	var overlay;
 
-	function main() {
+	function main(opts) {
 	    item = new MTOItem('canvas');
+
+	    overlay = new Overlay(opts.overlayContainer);
 	    overlay.buildHTML();
 
-	    //cloudReferences.map(function(cloudRef) {
-	        //gate.load(cloudRef);
-	    //});
+	    var chainPromise = null;
+	    var promiseList = opts.referenceList.map(function(cloudRef) {
+	        var loadPromise = gate.load(cloudRef);
+	        if (cloudRef.refType == 'chain' && !chainPromise) {
+	            chainPromise = loadPromise;
+	        }
+	        return loadPromise;
+	    });
+	    console.log("promiseList");
+	    console.log(promiseList);
 
-	    item.setBaseChain(hardCodedGateway['chain']['double']);
+	    // TODO: use promises to wait until loading is done before setting initial chain
+	    if (chainPromise) {
+	        chainPromise.then(function(){
+	            console.warn("figure out which chain has just been loaded, set it to base chain");
+	            //item.setBaseChain(gate.get('chain', 'double'));
+	        });
+	    }
+
+	    Promise.all(promiseList).then(function() {
+	        if (opts.drawerContainer) {
+	            buildDrawer(opts.drawerContainer, gate);
+	        }
+	    });
+
 	    canvas.addEventListener('mousedown', function(evt) {
 	        var hit = item.charmClickQuery(evt);
 	        if (hit) {
-	            // should be triggered by clicking charm
 	            overlay.displayInstance(item.selectedCharm);
 	        }
 	    });
 	    canvas.addEventListener('mouseup', item.handleMouseup.bind(item));
 	    canvas.addEventListener('mousemove', item.handleMousemove.bind(item), false);
+
 	    loop();
 	}
 
@@ -129,32 +138,40 @@ var MTO =
 
 	function buildDrawer(root, gate) {
 	    var drawer = new CharmDrawer(root);
-	    drawer.defineCategory({
-	        title: 'Chains',
-	        type: 'chain'
-	    });
+	    //drawer.defineCategory({
+	        //title: 'Chains',
+	        //type: 'chain'
+	    //});
 
-	    var chainHash = hardCodedGateway['chain'];
-	    Object.keys(chainHash).map(function(chainKey) {
-	        drawer.addTypeEntry('chain', chainHash[chainKey]);
-	    });
+	    //var chainHash = hardCodedGateway['chain'];
+	    //Object.keys(chainHash).map(function(chainKey) {
+	        //drawer.addTypeEntry('chain', chainHash[chainKey]);
+	    //});
 
-	    drawer.registerTypeHandler('chain', function(type, key) {
-	        item.setBaseChain(hardCodedGateway[type][key]);
-	    });
+	    //drawer.registerTypeHandler('chain', function(type, key) {
+	        //item.setBaseChain(hardCodedGateway[type][key]);
+	    //});
 
 	    drawer.defineCategory({
 	        title: 'Charms',
 	        type: 'charm'
 	    });
 
-	    var charmHash = hardCodedGateway['charm'];
-	    Object.keys(charmHash).map(function(charmKey) {
-	        drawer.addTypeEntry('charm', charmHash[charmKey]);
+	    gate.forTypeEach('charm', function(charmPromise) {
+	        charmPromise.then(function(charmDef){
+	            drawer.addTypeEntry('charm', charmDef);
+	        });
 	    });
+
+	    //var charmHash = hardCodedGateway['charm'];
+	    //Object.keys(charmHash).map(function(charmKey) {
+	        //drawer.addTypeEntry('charm', charmHash[charmKey]);
+	    //});
+
 	    drawer.registerTypeHandler('charm', function(type, key) {
-	        var def = hardCodedGateway[type][key];
-	        overlay.displayDefinition(def);
+	        gate.get(type, key).then(function(charmDef){
+	            overlay.displayDefinition(charmDef);
+	        });
 	    });
 
 	    overlay.registerDefHandler(function(overlayCharmDef) {
@@ -169,8 +186,7 @@ var MTO =
 	module.exports = {
 	    main,
 	    writeDebugInfo,
-	    deleteSelectedCharm,
-	    buildDrawer
+	    deleteSelectedCharm
 	};
 
 
@@ -1037,6 +1053,7 @@ var MTO =
 	    this.containers = {
 	        root: rootElem
 	    };
+	    this.handlers = {};
 	}
 
 	// TODO: define max height and other parameters
@@ -1060,6 +1077,14 @@ var MTO =
 	    cell.className = "categoryCell";
 	    cell.style.backgroundImage = `url(${charmDef.imgURL})`;
 
+	    if (this.handlers[categoryType]) {
+	        var fn = this.handlers[categoryType];
+	        cell.addEventListener('click', function(evt) {
+	            var key = evt.target.getAttribute('data-key');
+	            fn.call(null, categoryType, key);
+	        });
+	    }
+
 	    cat.appendChild(cell);
 	};
 
@@ -1067,6 +1092,7 @@ var MTO =
 	// fn(type, key) // from gateway scheme, tbdocumented
 	// don't really need the type parameter, seemed like it would be nice
 	CharmDrawer.prototype.registerTypeHandler = function(categoryType, fn) {
+	    this.handlers[categoryType] = fn;
 	    var cat = this.containers[categoryType];
 	    var cells = cat.querySelectorAll('.drawerCategory .categoryCell');
 	    for (var i = 0; i < cells.length; i++) {
@@ -1094,23 +1120,28 @@ var MTO =
 	    this.cache = Object.create(null);
 	}
 
-	console.log("woo woo got here");
-
 	// fetch item based on cloudRef, add to cache based on type and key and return promise with data
 	Gateway.prototype.load = function(ref) {
-	    var publicURL = `https://storage.googleapis.com/${ref.bucket}/gateway/${ref.type}/${ref.key}/${ref.hash}.json`;
+	    var publicURL = `https://storage.googleapis.com/${ref.bucket}/gateway/${ref.refType}/${ref.key}/${ref.hash}.json`;
 
-	    var contents = null;
-	    fetch(publicURL)
-	        .then(function (response) {
-	            contents = response.json();
-	        });
-
-	    var typeHash = this.cache[ref.type];
+	    var categoryType = ref.refType;
+	    var typeHash = this.cache[categoryType];
 	    if (!typeHash) {
-	        typeHash = this.cache[ref.type] = {};
+	        typeHash = this.cache[categoryType] = {};
 	    }
-	    typeHash[ref.key] = contents;
+
+	    return fetch(publicURL)
+	        .then(function (response) {
+	            typeHash[ref.key] = Promise.resolve(response.json());
+	            return typeHash[ref.key];
+	        });
+	};
+
+	Gateway.prototype.forTypeEach = function(type, fn) {
+	    var typeHash = this.cache[type];
+	    Object.keys(typeHash).map(function(hashKey) {
+	        fn.call(null, typeHash[hashKey]);
+	    });
 	};
 
 	Gateway.prototype.get = function(type, key) { // eventually version
