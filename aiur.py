@@ -66,6 +66,8 @@ def fetch_cloud_references():
         charmDef['key'] = defData['key']
         charmDef['version'] = defData['version']
         charmDef['hash'] = defData['hash']
+        # last two properties a bit of a hack to get around cloud difficulties
+        charmDef['type'] = 'local-reference'
         charmDef['content'] = defData['content']
         charmDefs.append(charmDef)
     return charmDefs

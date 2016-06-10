@@ -60,7 +60,7 @@ values ('troveup-dev-private', 'chain', 'dev-single-anchor', 2, '3cc3a565f31d6d6
     "imgURL": "https://storage.googleapis.com/troveup-dev-private/mto-images/demo-chain.png",
     "type": "chain",
     "version": 2,
-    "width": 60
+    "width": 60,
     "height": 80,
     "anchors": [ 0.75, -15.5 ]
 }');
